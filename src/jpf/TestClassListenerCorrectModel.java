@@ -23,7 +23,7 @@ public class TestClassListenerCorrectModel extends PropertyListenerAdapter {
 	/*
 	 * Store next element to be put into the Queue...
 	 */
-	static int nextElement = 60;
+	static int nextElement = 200;
 	
 	/*
 	 * Reference to KodkodPool.
@@ -56,13 +56,9 @@ public class TestClassListenerCorrectModel extends PropertyListenerAdapter {
 				
 				
 				if (currMethodName.contains("updateQueue")) {				
-					
-					
-					System.out.println("\nEncountered the method : "+currMethodName);					
-
+					System.out.println("\nEncountered the method : "+currMethodName);	
 					lQueue.put(nextElement);
 					nextElement+=10;
-
 				}
 				
 
@@ -70,12 +66,12 @@ public class TestClassListenerCorrectModel extends PropertyListenerAdapter {
 					
 					
 					System.out.println("\nEncountered the method : "+currMethodName);
+					//System.out.println("\ncloning....");
+					//LinkedQueue<Integer> lq = lQueue.cloneQueue();
 					
-					LinkedQueue<Integer> lq = lQueue.cloneQueue();
 					//Create an instance of KodKodRunner...
-					KodkodRunner kodkodRun = new KodkodRunner(lq, true);
+					KodkodRunner kodkodRun = new KodkodRunner(lQueue, true);
 					kodkodPool.execute(kodkodRun);
-
 				}
 			}
 		}

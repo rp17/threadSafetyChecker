@@ -29,10 +29,11 @@ public class ModelChecker {
 
 	public static void main(String args[])
 	{
-		//Get the command-line argument to determine the type of Kodkod model to be created...
-		
-		String strCorrectModelMode = args[0];		
-		System.out.println("strCorrectModelMode : "+strCorrectModelMode);
+		System.out.println("\n-------------- START THREAD-SAFETY CHECK--------------------");
+
+		//Get the command-line argument to determine the type of Kodkod model to be created...		
+		String strCorrectModelMode = args[0];
+
 		_correctModelMode = Boolean.parseBoolean(strCorrectModelMode);
 		
 		//Create initial model...
@@ -46,9 +47,12 @@ public class ModelChecker {
 		//Execute the JPF Runner thread...
 		_JPFPool.execute(jpfRun);
 		
+		//hooks in threadpool
 		
 		//_KodKodPool.shutdown();
 		//_JPFPool.shutdown();
+		System.out.println("\n-------------- END OF THREAD-SAFETY CHECK--------------------");
+
 	}
 	
 	   
@@ -63,7 +67,7 @@ public class ModelChecker {
 		lQueue = new LinkedQueue<Integer>();//Queue for 'Integer' elements..
 
 		//Add the test data to queue
-		int max = 60;
+		int max = 200;
 		for(int i = 10; i < max; i+=10)
 			lQueue.put(i);		
   }

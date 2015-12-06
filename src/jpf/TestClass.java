@@ -1,6 +1,5 @@
 package jpf;
 
-
 public class TestClass{
 	
    public static void main(String[] args){
@@ -9,6 +8,9 @@ public class TestClass{
 	    * JPF looks for "main" method by default.
 	    * 
 	    */
+	   
+		System.out.println("JPF Execution Start Time: "+System.currentTimeMillis());
+
 
 		//TestClass tc = new TestClass();		  
 	    //tc.fakeMethod();   
@@ -19,10 +21,11 @@ public class TestClass{
 		   
 	   
 	    //OR: Add interleaving of threads
+	   
 
 	   	Checker chk1 = new Checker("Checker1");
 		Checker chk2 = new Checker("Checker2");
-		Checker chk3 = new Checker("Checker3");
+		//Checker chk3 = new Checker("Checker3");
 
 		Thread t1 = new Thread(chk1);
 		Thread t2 = new Thread(chk2);
@@ -30,23 +33,25 @@ public class TestClass{
 		t1.setName(chk1.getName());		
 		t2.setName(chk2.getName());
 		//t3.setName(chk3.getName());
-		t1.start();
+		t1.start();		
 		t2.start();
-	//	t3.start();
+		//t3.start();
 		try {
 			t1.join();
 			t2.join();	
-		//	t3.join();		
+			//t3.join();
 
 		}catch(Exception ex){
 				ex.printStackTrace();
 		}
+		finally
+		{
+			System.out.println("JPF Execution End Time: "+System.currentTimeMillis());
+		}
 	  
 	  }
 	
-   
-
-	  
+   	  
 	  static class Checker implements Runnable {
 			private String name;
 			

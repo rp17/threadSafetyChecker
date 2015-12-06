@@ -2,8 +2,10 @@ package model;
 
 
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Queue;
@@ -14,6 +16,8 @@ public class LinkedQueue <E>{
 	Queue<Node<E>> auxQueue = new ConcurrentLinkedQueue<Node<E>>();
 	StringBuffer trace = new StringBuffer();
 	Hashtable<String, Integer> structMap = new Hashtable();
+	
+	static Object lock = new String("Dummy_Lock_Object");
 	
 	private final Node<E> dummy = new Node<E>(null, null);
 	private final AtomicReference<Node<E>> head = new AtomicReference<Node<E>>(dummy);
@@ -67,10 +71,10 @@ public class LinkedQueue <E>{
 		while(iterNodes.hasNext()){
 			
 			LinkedQueue.Node<E> node = (Node<E>) iterNodes.next();
-			
+			System.out.println("cloning : "+node.item);
+
 			clonedQueue.put(node.item);
 			
-			System.out.println("cloning : "+node.getName());
 		}
 		
 		return clonedQueue;
@@ -142,49 +146,73 @@ public class LinkedQueue <E>{
 	public int size(){
 		return auxQueue.size();
 	}
-	public boolean put(E item) {
-		Node<E> newNode = new Node<E>(item, null);
-		
-		System.out.println("auxQueue.size() == "+auxQueue.size());
-		
-		/*if(auxQueue.size() == 1)
-		{			
-			head.compareAndSet(dummy, newNode);
-			tail.compareAndSet(dummy, newNode);
-			dummy.next.compareAndSet(null, newNode);
-		}*/
-		
-		auxQueue.add(newNode);
-		Integer success = 0;
-		
-				
-		while(true) {
-			Node<E> curTail = tail.get();
-			Node<E> tailNext = curTail.next.get();
+	public List<String> getAtoms()
+	{
+		synchronized(lock)
+		{
+			int size = size();
+			final List<String> atoms = new ArrayList<String>(size + 1);
+			Iterator<LinkedQueue.Node<E>> iterNodes = getNodes();
+			//getAtoms synchronized lock
 			
-			if(curTail == tail.get()) {
-				if(tailNext != null) {
-					// advance tail
-					tail.compareAndSet(curTail, tailNext);
-				} else {
-					// try inserting new node
-					if(curTail.next.compareAndSet(null, newNode)) {
-						if(newNode.item instanceof Integer) {
-							String tName = Thread.currentThread().getName();
-							trace.append("put inserted " + (Integer)newNode.item +
-									" by " + tName + "\n");
-							success = 1;
-							structMap.put(newNode.item.toString(), success);
+			while(iterNodes.hasNext()){
+				
+				LinkedQueue.Node<E> node = iterNodes.next();
+				atoms.add(node.getName());
+			}
+			
+			return atoms;
+		}
+	}
+	public boolean put(E item) {
+		
+		synchronized(lock)
+		{
+			Node<E> newNode = new Node<E>(item, null);
+			
+			System.out.println("auxQueue.size() == "+auxQueue.size());
+			
+			/*if(auxQueue.size() == 1)
+			{			
+				head.compareAndSet(dummy, newNode);
+				tail.compareAndSet(dummy, newNode);
+				dummy.next.compareAndSet(null, newNode);
+			}*/
+			
+			auxQueue.add(newNode);
+			Integer success = 0;
+			
+					
+			while(true) {
+				Node<E> curTail = tail.get();
+				Node<E> tailNext = curTail.next.get();
+				
+				if(curTail == tail.get()) {
+					if(tailNext != null) {
+						// advance tail
+						tail.compareAndSet(curTail, tailNext);
+					} else {
+						// try inserting new node
+						if(curTail.next.compareAndSet(null, newNode)) {
+							if(newNode.item instanceof Integer) {
+								String tName = Thread.currentThread().getName();
+								trace.append("put inserted " + (Integer)newNode.item +
+										" by " + tName + "\n");
+								success = 1;
+								structMap.put(newNode.item.toString(), success);
+							}
+							// insertion succeeded, try advancing tail
+							tail.compareAndSet(curTail, newNode);
+							structMap.remove("Tail");
+							structMap.put("Tail", (Integer)newNode.item);
+	
+							return true;
 						}
-						// insertion succeeded, try advancing tail
-						tail.compareAndSet(curTail, newNode);
-						structMap.remove("Tail");
-						structMap.put("Tail", (Integer)newNode.item);
-						return true;
 					}
 				}
 			}
 		}
+		
 	}
 
 }

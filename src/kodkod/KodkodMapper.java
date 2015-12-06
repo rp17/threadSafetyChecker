@@ -57,17 +57,33 @@ public class KodkodMapper<E> {
 	public final synchronized Bounds buildKodkodQueue(){
 		
 		int size = queue.size();
+	
+		
+		/*
+		 * OLD CODE for atoms - START
+		 */
+		/*
 		final List<String> atoms = new ArrayList<String>(size + 1);
 		Iterator<LinkedQueue.Node<E>> iterNodes = queue.getNodes();
-		//getAtoms synchronized lock
 		
 		while(iterNodes.hasNext()){
 			
 			LinkedQueue.Node<E> node = iterNodes.next();
+			System.out.println("node.getName() : "+node.getName());
 			atoms.add(node.getName());
-		}
+		}*/
+		/*
+		 * OLD CODE for atoms - END
+		 */
 		
+		final List<String> atoms = queue.getAtoms();
 		
+		String headName = atoms.get(0);
+		String tailName = atoms.get(atoms.size()-1);
+		
+		System.out.println("Head name = " + headName);
+		System.out.println("Tail name = " + tailName);
+
 		/*
 		 * PATCH-FIX CODE START - (For Incremental Solver only.)
 		 * CREATE UNIVERSE WITH ALL ITEMS ADDED INITIALLY ITESELF.		  
@@ -87,16 +103,14 @@ public class KodkodMapper<E> {
 		u = new Universe(atoms);
 		f = u.factory();
 		b = new Bounds(u);
-		//final int max = size - 1;
-		System.out.println("Head name = " + queue.getHeadName());
-		System.out.println("Tail name = " + queue.getTailName());
+		
 		
 		//Set the lower and upper bounds for the relation...
-		b.bound(Node, f.range(f.tuple(queue.getHeadName()), f.tuple( queue.getTailName())));
+		b.bound(Node, f.range(f.tuple(headName), f.tuple(tailName)));
 		b.bound(next, b.upperBound(Node).product(b.upperBound(Node)));
 		
 		final TupleSet nextTupleSet = f.noneOf(2);
-		iterNodes = queue.getNodes();
+		Iterator<LinkedQueue.Node<E>> iterNodes = queue.getNodes();
 		final List<LinkedQueue.Node<E>> nodesList = new ArrayList<LinkedQueue.Node<E>>(size);
 		while(iterNodes.hasNext()){
 			
@@ -106,8 +120,7 @@ public class KodkodMapper<E> {
 		}
 		
 		
-		// bind next relation
-		
+		// bind next relation		
 		for(int i = 0; i < nodesList.size(); i++) {
 			if(i == nodesList.size() -1) {
 				LinkedQueue.Node<E> node1 = nodesList.get(i);
@@ -149,12 +162,12 @@ public class KodkodMapper<E> {
 		
 		// bind head relation
 		final TupleSet start = f.noneOf(1);		
-		start.add(f.tuple(queue.getHeadName()));										
+		start.add(f.tuple(headName));										
 		b.boundExactly(head , start);										
 		
 		// bind tail relation
 		final TupleSet end = f.noneOf(1);									
-		end.add(f.tuple(queue.getTailName()));										
+		end.add(f.tuple(tailName));										
 		b.boundExactly(tail , end);	
 		
 		return b;

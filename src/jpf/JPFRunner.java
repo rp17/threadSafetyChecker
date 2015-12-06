@@ -84,7 +84,7 @@ public class JPFRunner implements Runnable //Threads will be added in next part.
 				TestClassListenerWrongModel tListener = new TestClassListenerWrongModel(kodkodPool, lQueue);//Pass references...
 				jpf.addVMListener(tListener);
 			}
-
+			//long stTime= System.nanoTime();
 			/*
 			 * Run the JPF.
 			 */

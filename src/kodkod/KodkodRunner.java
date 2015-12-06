@@ -34,14 +34,14 @@ public class KodkodRunner implements Runnable {
 		/*
 		 * Print the test linked-list.
 		 */
-		System.out.println("\nCurrent linked-queue: ");
+		/*System.out.println("\nCurrent linked-queue: ");
 		
 		Iterator<LinkedQueue.Node<Integer>> iterNodes = lQueue.getNodes();		
 		while(iterNodes.hasNext()){
 			
 			LinkedQueue.Node<Integer> node = iterNodes.next();
 			System.out.println(node.getName());
-		}
+		}*/
 		
 		/*
 		 * Test reachability of linked-list.
